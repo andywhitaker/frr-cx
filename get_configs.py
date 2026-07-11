@@ -6,11 +6,11 @@ Discovery flow:
   2. Read CX labels:
        cx-node-namespace  -> EDA logical namespace (not the K8s pod namespace)
        cx-chassis-name    -> SimNode / chassis name
-  3. Download FRR files from the artifact server:
+  3. Download FRR files from the artifact server (one Artifact URL per file):
 
-       https://eda-asvr.eda-system.svc/{namespace}/frr-cx-configs/{chassis}/{file}
-
-     where {file} is one of: frr.conf, daemons, vtysh.conf
+       .../{namespace}/frr-cx-configs/frr-cx-{chassis}-daemons/daemons
+       .../{namespace}/frr-cx-configs/frr-cx-{chassis}-frr-conf/frr.conf
+       .../{namespace}/frr-cx-configs/frr-cx-{chassis}-vtysh-conf/vtysh.conf
 
 Environment overrides (optional, useful for local testing):
   HOSTNAME              Pod name (set automatically by Kubernetes)
@@ -52,7 +52,13 @@ K8S_API_PORT = os.environ.get("KUBERNETES_SERVICE_PORT", "443")
 LABEL_NAMESPACE = "cx-node-namespace"
 LABEL_CHASSIS = "cx-chassis-name"
 
-CONFIG_FILES = ("frr.conf", "daemons", "vtysh.conf")
+# filename -> artifact name suffix used in the asvr path segment
+# URL: {base}/{ns}/{repo}/frr-cx-{chassis}-{suffix}/{filename}
+CONFIG_ARTIFACTS = (
+    ("daemons", "daemons"),
+    ("frr.conf", "frr-conf"),
+    ("vtysh.conf", "vtysh-conf"),
+)
 
 # CX pod names look like: cx-<eda-ns>--<chassis>-sim-<replicaset>-<id>
 POD_NAME_RE = re.compile(
@@ -231,8 +237,9 @@ def main() -> int:
     config_dir.mkdir(parents=True, exist_ok=True)
     ctx = ssl_context(verify=verify_tls)
 
-    for filename in CONFIG_FILES:
-        url = f"{asvr_base}/{eda_ns}/{repo}/{chassis}/{filename}"
+    for filename, artifact_suffix in CONFIG_ARTIFACTS:
+        artifact_name = f"frr-cx-{chassis}-{artifact_suffix}"
+        url = f"{asvr_base}/{eda_ns}/{repo}/{artifact_name}/{filename}"
         dest = config_dir / filename
         download_file(url, dest, ctx, retries=retries, delay=delay)
         fix_ownership(dest)

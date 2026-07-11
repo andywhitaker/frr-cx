@@ -26,12 +26,12 @@ Use this image as the SimNode container image in your EDA NetworkTopology / SimN
    - Env: `CX_NODE_NAMESPACE` + `CX_CHASSIS_NAME`
    - Kubernetes API pod labels: `cx-node-namespace`, `cx-chassis-name`
    - Pod name pattern: `cx-<namespace>--<chassis>-sim-...`
-4. **Download configs** from the artifact server into `/etc/frr`:
+4. **Download configs** from the artifact server into `/etc/frr` (one Artifact URL per file):
 
    ```text
-   https://eda-asvr.eda-system.svc/{namespace}/frr-cx-configs/{chassis}/frr.conf
-   https://eda-asvr.eda-system.svc/{namespace}/frr-cx-configs/{chassis}/daemons
-   https://eda-asvr.eda-system.svc/{namespace}/frr-cx-configs/{chassis}/vtysh.conf
+   https://eda-asvr.eda-system.svc/{namespace}/frr-cx-configs/frr-cx-{chassis}-daemons/daemons
+   https://eda-asvr.eda-system.svc/{namespace}/frr-cx-configs/frr-cx-{chassis}-frr-conf/frr.conf
+   https://eda-asvr.eda-system.svc/{namespace}/frr-cx-configs/frr-cx-{chassis}-vtysh-conf/vtysh.conf
    ```
 
 5. **Start FRR** via the stock `/usr/lib/frr/docker-start`.
