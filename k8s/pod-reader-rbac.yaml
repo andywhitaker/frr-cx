@@ -1,0 +1,33 @@
+# Allow CX SimNode pods (default ServiceAccount in eda-system) to read their
+# own Pod object so the entrypoint can resolve cx-node-namespace / cx-chassis-name.
+#
+# Apply once per cluster:
+#   kubectl apply -f k8s/pod-reader-rbac.yaml
+#
+# Note: get_configs.py also falls back to parsing the pod name
+# (cx-<ns>--<chassis>-sim-...) and to CX_NODE_NAMESPACE / CX_CHASSIS_NAME env
+# vars if the API call is denied.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: frr-cx-pod-reader
+  namespace: eda-system
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: frr-cx-pod-reader
+  namespace: eda-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: frr-cx-pod-reader
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: eda-system
