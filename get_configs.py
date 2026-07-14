@@ -227,7 +227,8 @@ def main() -> int:
     eda_ns, chassis = resolve_identity()
     log(f"Resolved SimNode identity: eda_namespace={eda_ns} chassis={chassis}")
 
-    asvr_base = os.environ.get("ASVR_BASE_URL", "https://eda-asvr.eda-system.svc").rstrip("/")
+    # asvr_base = os.environ.get("ASVR_BASE_URL", "https://eda-asvr.eda-system.svc").rstrip("/")
+    asvr_base = "http://eda-api/core/httpproxy/v1/asvr".rstrip("/")
     repo = os.environ.get("ASVR_REPO", "frr-cx-configs")
     config_dir = pathlib.Path(os.environ.get("FRR_CONFIG_DIR", "/etc/frr"))
     retries = int(os.environ.get("CONFIG_FETCH_RETRIES", "30"))

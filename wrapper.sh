@@ -11,6 +11,12 @@ log() {
     echo "[frr-cx] $*"
 }
 
+log "Enabling IPv6 globally so new interfaces inherit the setting..."
+sysctl -w "net.ipv6.conf.all.disable_ipv6=0" >/dev/null || true
+sysctl -w "net.ipv6.conf.default.disable_ipv6=0" >/dev/null || true
+sysctl -w "net.ipv6.conf.all.autoconf=1" >/dev/null || true
+sysctl -w "net.ipv6.conf.default.autoconf=1" >/dev/null || true
+
 log "Waiting for datapath interfaces to be injected by CX..."
 max_retries="${DATAPATH_WAIT_SECONDS:-30}"
 counter=0
@@ -37,7 +43,7 @@ for intf in $(ls /sys/class/net 2>/dev/null | grep -E '^eth[1-9][0-9]*$' || true
         *-cx) continue ;;
     esac
     log "  configuring $intf"
-    sysctl -w "net.ipv6.conf.${intf}.disable_ipv6=0" >/dev/null
+    sysctl -w "net.ipv6.conf.${intf}.disable_ipv6=0" >/dev/null || true
     sysctl -w "net.ipv6.conf.${intf}.autoconf=1" >/dev/null || true
     ip link set "$intf" down || true
     ip link set "$intf" up || true
