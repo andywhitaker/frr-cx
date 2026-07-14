@@ -29,45 +29,12 @@ Use this image as the SimNode container image in your EDA NetworkTopology / SimN
 4. **Download configs** from the artifact server into `/etc/frr` (one Artifact URL per file):
 
    ```text
-   https://eda-asvr.eda-system.svc/{namespace}/frr-cx-configs/frr-cx-{chassis}-daemons/daemons
-   https://eda-asvr.eda-system.svc/{namespace}/frr-cx-configs/frr-cx-{chassis}-frr-conf/frr.conf
-   https://eda-asvr.eda-system.svc/{namespace}/frr-cx-configs/frr-cx-{chassis}-vtysh-conf/vtysh.conf
+   http://eda-api/core/httpproxy/v1/asvr/{namespace}/frr-cx-configs/frr-cx-{chassis}-daemons/daemons
+   http://eda-api/core/httpproxy/v1/asvr/{namespace}/frr-cx-configs/frr-cx-{chassis}-frr-conf/frr.conf
+   http://eda-api/core/httpproxy/v1/asvr/{namespace}/frr-cx-configs/frr-cx-{chassis}-vtysh-conf/vtysh.conf
    ```
 
 5. **Start FRR** via the stock `/usr/lib/frr/docker-start`.
-
-## Build locally
-
-```bash
-make build
-# tags both:
-#   ghcr.io/andywhitaker/frr-cx:10.6.1
-#   frr-cx:10.6.1
-
-# Optional: load into kind (EDA playground)
-make load-kind
-```
-
-## Publish
-
-Images are published to GHCR automatically on push to `main` via GitHub Actions.
-
-To push from your machine (requires a token with `write:packages`):
-
-```bash
-echo "$GITHUB_TOKEN" | docker login ghcr.io -u andywhitaker --password-stdin
-make push
-```
-
-## Kubernetes RBAC (optional)
-
-SimNodes run as the `default` ServiceAccount in `eda-system`. To allow label discovery via the API:
-
-```bash
-kubectl apply -f k8s/pod-reader-rbac.yaml
-```
-
-Without this, identity falls back to pod-name parsing or explicit env vars.
 
 ## Environment variables
 
