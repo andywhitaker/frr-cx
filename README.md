@@ -19,6 +19,11 @@ docker pull ghcr.io/andywhitaker/frr-cx:10.6.1
 Use this image as the SimNode container image in your EDA NetworkTopology / SimNode definition.
 
 ## How it works
+FRR nodes require configurations to be present in the `/etc/frr/` folder in order to boot with a proper configuration.
+In order to accomplish this we use a process of reaching out to the EDA Artifact server to download the configurations
+prior to starting FRR. The **configurations are expected to be in specific URL locations on the artifact server** for
+this to work. Example Artifact resources will be presented in the next section to assist with this.
+
 
 1. **Wait for datapath** — CX injects `eth1`, `eth2`, …; management stays on `eth0`.
 2. **Enable IPv6** on datapath interfaces (for BGP unnumbered / NDP use cases).
@@ -35,6 +40,51 @@ Use this image as the SimNode container image in your EDA NetworkTopology / SimN
    ```
 
 5. **Start FRR** via the stock `/usr/lib/frr/docker-start`.
+
+## Example Artifact Resources
+### Daemons Config
+```
+kind: Artifact
+metadata:
+  name: frr-cx-{node_name}-daemons
+  namespace: {namespace}
+spec:
+  filePath: daemons
+  repo: frr-cx-configs
+  textFile:
+    content: |-
+      --FILE CONTENT GOES HERE--
+ 
+```
+
+### FRR Config
+```
+apiVersion: artifacts.eda.nokia.com/v1
+  kind: Artifact
+  metadata:
+    name: frr-cx-{node_name}-frr-conf
+    namespace: {namespace}
+  spec:
+    filePath: frr.conf
+    repo: frr-cx-configs
+    textFile:
+      content: |-
+        --FILE CONTENT GOES HERE--
+```
+
+### VTYSH Config
+```
+apiVersion: artifacts.eda.nokia.com/v1
+kind: Artifact
+metadata:
+  name: frr-cx-{node_name}-vtysh-conf
+  namespace: {namespace}
+spec:
+  filePath: vtysh.conf
+  repo: frr-cx-configs
+  textFile:
+    content: ""
+```
 
 ## Environment variables
 
